@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1526">
+<title>DOTMAK</title>
+<style>
+  :root{
+    --bg:#0d1526; --surface:#16213d; --surface-2:#1d2c4f;
+    --silver-1:#eef1f4; --silver-2:#aab6c4; --accent:#5b7fb5;
+    --text:#eef1f5; --muted:#8b96a8; --danger:#e0635f; --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:sans-serif;}
+
+  /* ===== LOGIN/SIGNUP SCREENS ===== */
+  .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 20px;background:radial-gradient(circle at 50% 0%, #1d2c4f 0%, #0d1526 70%);}
+  .screen{display:none;width:100%;max-width:380px;text-align:center;}
+  .screen.active{display:block;}
+  h1{font-size:28px;letter-spacing:3px;margin:0 0 4px;color:var(--silver-1);}
+  .tagline{color:var(--muted);font-size:13px;margin-bottom:26px;}
+  .card{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:22px 20px;text-align:left;}
+  .card h2{font-size:17px;margin:0 0 16px;color:var(--silver-1);text-align:center;}
+  label{display:block;font-size:12px;color:var(--muted);margin:14px 0 5px;}
+  input{width:100%;padding:12px;background:var(--bg);border:1px solid var(--surface-2);border-radius:8px;color:var(--text);font-size:16px;}
+  input:focus{outline:2px solid var(--accent);border-color:var(--accent);}
+  .dob-row{display:flex;gap:8px;}
+  .dob-row input{text-align:center;}
+  button{width:100%;padding:13px;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;margin-top:14px;}
+  .btn-primary{background:linear-gradient(135deg,var(--silver-1),var(--silver-2));color:#0d1526;}
+  .btn-secondary{background:transparent;border:1px solid var(--surface-2);color:var(--text);}
+  .btn-link{background:none;border:none;color:var(--accent);font-size:13px;text-decoration:underline;cursor:pointer;padding:0;width:auto;margin-top:14px;}
+  .error{color:var(--danger);font-size:12.5px;margin-top:10px;min-height:14px;}
+
+  /* ===== HOME (app shell) ===== */
+  #app-shell{display:none;min-height:100vh;flex-direction:column;}
+  #app-shell.active{display:flex;}
+  .topbar{padding:16px 18px 10px;background:var(--bg);border-bottom:1px solid var(--surface-2);}
+  .topbar .welcome{font-size:13px;color:var(--muted);}
+  .topbar .wm-name{color:var(--silver-1);font-weight:600;}
+  .tab-content{flex:1;overflow-y:auto;padding:16px 18px 90px;}
+  .tab-pane{display:none;}
+  .tab-pane.active{display:block;}
+  .placeholder-box{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:24px 18px;text-align:center;color:var(--muted);font-size:13.5px;margin-top:12px;}
+  .section-title{font-size:18px;color:var(--silver-1);margin:0 0 12px;}
+
+  .profile-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--surface-2);font-size:14px;}
+  .profile-row span:first-child{color:var(--muted);}
+  .dui-pill{display:inline-block;background:var(--surface-2);padding:6px 14px;border-radius:20px;font-size:13px;letter-spacing:1px;margin-bottom:14px;}
+
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--surface);border-top:1px solid var(--surface-2);padding:8px 4px calc(8px + env(safe-area-inset-bottom));}
+  .nav-btn{flex:1;background:none;border:none;color:var(--muted);font-size:11px;padding:6px 2px;margin:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .nav-btn .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
+  .nav-btn.active{color:var(--silver-1);}
+  .nav-btn.active .dot{background:var(--silver-1);}
+  .logout-btn{margin-top:18px;}
+</style>
+</head>
+<body>
+
+<!-- ============== AUTH SCREENS ============== -->
+<div class="auth-wrap" id="auth-wrap">
+
+  <!-- SCREEN: LOGIN -->
+  <div class="screen active" id="screen-login">
+    <h1>DOTMAK</h1>
+    <p class="tagline">Create by SIFAT</p>
+    <div class="card">
+      <h2>Login</h2>
+      <label>DUI</label>
+      <input id="login-dui" type="text" inputmode="numeric" placeholder="10000001">
+      <label>Password</label>
+      <input id="login-password" type="password">
+      <div class="error" id="login-error"></div>
+      <button class="btn-primary" onclick="handleLogin()">Login করো</button>
+      <button class="btn-secondary" onclick="showScreen('screen-signup')">Build DOTMAK ID</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: SIGNUP -->
+  <div class="screen" id="screen-signup">
+    <h1 style="font-size:21px;">Build DOTMAK ID</h1>
+    <div class="card">
+      <label>নাম</label>
+      <input id="su-name" type="text">
+      <label>জন্ম তারিখ (DD/MM/YYYY)</label>
+      <div class="dob-row">
+        <input id="su-dob-d" type="text" inputmode="numeric" maxlength="2" placeholder="DD">
+        <input id="su-dob-m" type="text" inputmode="numeric" maxlength="2" placeholder="MM">
+        <input id="su-dob-y" type="text" inputmode="numeric" maxlength="4" placeholder="YYYY">
+      </div>
+      <label>ফোন নাম্বার</label>
+      <input id="su-phone" type="tel">
+      <label>Password (কমপক্ষে 6 অক্ষর)</label>
+      <input id="su-password" type="password">
+      <div class="error" id="su-error"></div>
+      <button class="btn-primary" onclick="handleSignup()">ID তৈরি করো</button>
+      <button class="btn-link" onclick="showScreen('screen-login')">← Login এ ফিরে যাও</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============== HOME APP SHELL ============== -->
+<div id="app-shell">
+  <div class="topbar">
+    <div class="welcome">স্বাগতম, <span class="wm-name" id="wm-name">--</span></div>
+  </div>
+
+  <div class="tab-content">
+
+    <!-- COMMUNITY TAB -->
+    <div class="tab-pane active" id="tab-community">
+      <h2 class="section-title">Community</h2>
+      <div class="placeholder-box">এখানে DOTMAK community chat আসবে।<br>(পরের update এ যুক্ত হবে)</div>
+    </div>
+
+    <!-- POST TAB -->
+    <div class="tab-pane" id="tab-post">
+      <h2 class="section-title">Post</h2>
+      <div class="placeholder-box">এখানে ইউজার রা তাদের মতামত post করতে পারবে।<br>(পরের update এ যুক্ত হবে)</div>
+    </div>
+
+    <!-- RULES TAB -->
+    <div class="tab-pane" id="tab-rules">
+      <h2 class="section-title">নিয়ম</h2>
+      <div class="placeholder-box" id="rules-content" style="text-align:left;white-space:pre-line;">লোড হচ্ছে...</div>
+    </div>
+
+    <!-- DOTMAK OFFICIAL TAB -->
+    <div class="tab-pane" id="tab-dotmak">
+      <h2 class="section-title">DOTMAK</h2>
+      <div class="placeholder-box">
+        DOTMAK কীভাবে use করতে হয়, আর সব official খবর এখানে আসবে।<br><br>
+        <strong style="color:var(--silver-1);">এখন DOTMAK V1 চালু আছে।</strong>
+      </div>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div class="tab-pane" id="tab-profile">
+      <h2 class="section-title">Profile</h2>
+      <div class="dui-pill" id="profile-dui">DUI: --------</div>
+      <div class="profile-row"><span>নাম</span><span id="profile-name">--</span></div>
+      <div class="profile-row"><span>জন্ম তারিখ</span><span id="profile-dob">--</span></div>
+      <div class="profile-row"><span>ফোন</span><span id="profile-phone">--</span></div>
+      <button class="btn-secondary logout-btn" onclick="handleLogout()">Logout</button>
+    </div>
+
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn active" data-tab="community" onclick="switchTab('community')">
+      <span class="dot"></span>Community
+    </button>
+    <button class="nav-btn" data-tab="post" onclick="switchTab('post')">
+      <span class="dot"></span>Post
+    </button>
+    <button class="nav-btn" data-tab="dotmak" onclick="switchTab('dotmak')">
+      <span class="dot"></span>DOTMAK
+    </button>
+    <button class="nav-btn" data-tab="rules" onclick="switchTab('rules')">
+      <span class="dot"></span>নিয়ম
+    </button>
+    <button class="nav-btn" data-tab="profile" onclick="switchTab('profile')">
+      <span class="dot"></span>Profile
+    </button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getDatabase, ref, runTransaction, set, get
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+// ===== FIREBASE INIT =====
+const firebaseConfig = {
+  apiKey: "AIzaSyB8cAr5O42P951A60X0si7uq8OQhm6N0UM",
+  authDomain: "dotmak-7b015.firebaseapp.com",
+  databaseURL: "https://dotmak-7b015-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dotmak-7b015",
+  storageBucket: "dotmak-7b015.firebasestorage.app",
+  messagingSenderId: "501130808160",
+  appId: "1:501130808160:web:327a274377457ddf59ec05"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// ===== SCREEN / TAB SWITCH =====
+window.showScreen = function(id){
+  document.querySelectorAll('#auth-wrap .screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+};
+window.switchTab = function(name){
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelector('.nav-btn[data-tab="' + name + '"]').classList.add('active');
+};
+
+// DUI কে Firebase Auth এর জন্য internal email এ রূপান্তর
+function duiToEmail(dui){ return 'dui' + dui.trim() + '@dotmak.local'; }
+
+function generateNextDUI(){
+  const counterRef = ref(db, 'meta/duiCounter');
+  return runTransaction(counterRef, cur => cur === null ? 10000001 : cur + 1)
+    .then(r => r.snapshot.val());
+}
+
+// Admin Dashboard এ "Total User" দেখানোর জন্য আলাদা ছোট counter
+function incrementUserCount(){
+  const countRef = ref(db, 'meta/userCount');
+  return runTransaction(countRef, cur => cur === null ? 1 : cur + 1);
+}
+
+function enterApp(data){
+  document.getElementById('wm-name').textContent = data.name;
+  document.getElementById('profile-dui').textContent = 'DUI: ' + data.dui;
+  document.getElementById('profile-name').textContent = data.name;
+  document.getElementById('profile-dob').textContent = data.dob;
+  document.getElementById('profile-phone').textContent = data.phone;
+  document.getElementById('auth-wrap').style.display = 'none';
+  document.getElementById('app-shell').classList.add('active');
+  loadRules();
+}
+
+// Admin Dashboard থেকে যে নিয়ম লেখা হবে, সেটা এখান থেকে পড়ে দেখানো হয়
+function loadRules(){
+  get(ref(db, 'content/rules/text')).then(snap => {
+    const text = snap.val();
+    document.getElementById('rules-content').textContent =
+      text && text.trim() ? text : 'এখনো কোনো নিয়ম যুক্ত করা হয়নি।';
+  }).catch(() => {
+    document.getElementById('rules-content').textContent = 'নিয়ম লোড করা যায়নি।';
+  });
+}
+
+// ===== SIGNUP =====
+window.handleSignup = function(){
+  const name = document.getElementById('su-name').value.trim();
+  const d = document.getElementById('su-dob-d').value.trim();
+  const m = document.getElementById('su-dob-m').value.trim();
+  const y = document.getElementById('su-dob-y').value.trim();
+  const phone = document.getElementById('su-phone').value.trim();
+  const password = document.getElementById('su-password').value;
+  const errorBox = document.getElementById('su-error');
+  errorBox.textContent = '';
+
+  if (!name || !d || !m || !y || !phone || !password){
+    errorBox.textContent = 'সব field পূরণ করো।'; return;
+  }
+  if (!/^\d{1,2}$/.test(d) || !/^\d{1,2}$/.test(m) || !/^\d{4}$/.test(y)){
+    errorBox.textContent = 'জন্ম তারিখ সঠিকভাবে দাও (DD/MM/YYYY)।'; return;
+  }
+  if (password.length < 6){
+    errorBox.textContent = 'Password কমপক্ষে 6 অক্ষরের হতে হবে।'; return;
+  }
+  const dob = d.padStart(2,'0') + '/' + m.padStart(2,'0') + '/' + y;
+
+  generateNextDUI().then(dui => {
+    const email = duiToEmail(String(dui));
+    return createUserWithEmailAndPassword(auth, email, password).then(cred => {
+      const userData = {
+        name, dob, phone, dui, duiClass: 1,
+        joinDate: Date.now(), coin: { silver: 0, gold: 0, s: 0 }
+      };
+      return set(ref(db, 'users/' + cred.user.uid), userData).then(() => {
+        incrementUserCount();
+        return userData;
+      });
+    });
+  })
+  .then(userData => enterApp(userData))
+  .catch(err => { errorBox.textContent = 'সমস্যা হয়েছে: ' + err.message; });
+};
+
+// ===== LOGIN =====
+window.handleLogin = function(){
+  const dui = document.getElementById('login-dui').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errorBox = document.getElementById('login-error');
+  errorBox.textContent = '';
+  if (!dui || !password){ errorBox.textContent = 'DUI আর Password দিতে হবে।'; return; }
+
+  const email = duiToEmail(dui);
+  signInWithEmailAndPassword(auth, email, password)
+    .then(cred => get(ref(db, 'users/' + cred.user.uid)))
+    .then(snap => {
+      const data = snap.val();
+      if (!data){ errorBox.textContent = 'User data পাওয়া যায়নি।'; return; }
+      enterApp(data);
+    })
+    .catch(() => { errorBox.textContent = 'DUI বা Password ভুল।'; });
+};
+
+// ===== LOGOUT =====
+window.handleLogout = function(){
+  signOut(auth).then(() => {
+    document.getElementById('app-shell').classList.remove('active');
+    document.getElementById('auth-wrap').style.display = 'flex';
+    showScreen('screen-login');
+  });
+};
+</script>
+</body>
+</html>

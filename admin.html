@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1526">
+<title>DOTMAK Admin</title>
+<style>
+  :root{
+    --bg:#0d1526; --surface:#16213d; --surface-2:#1d2c4f;
+    --silver-1:#eef1f4; --silver-2:#aab6c4; --accent:#5b7fb5;
+    --text:#eef1f5; --muted:#8b96a8; --danger:#e0635f; --good:#6fbf8b; --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:sans-serif;}
+
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 20px;}
+  .screen{display:none;width:100%;max-width:420px;}
+  .screen.active{display:block;}
+  .center-text{text-align:center;}
+
+  h1{font-size:24px;letter-spacing:2px;margin:0 0 4px;color:var(--silver-1);}
+  .tagline{color:var(--muted);font-size:12.5px;margin-bottom:22px;}
+
+  .card{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
+  .card h2{font-size:15px;margin:0 0 14px;color:var(--silver-1);}
+
+  label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;}
+  input,textarea{width:100%;padding:12px;background:var(--bg);border:1px solid var(--surface-2);border-radius:8px;color:var(--text);font-size:15px;font-family:sans-serif;}
+  textarea{min-height:160px;resize:vertical;line-height:1.5;}
+  input:focus,textarea:focus{outline:2px solid var(--accent);border-color:var(--accent);}
+
+  button{width:100%;padding:13px;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;margin-top:14px;}
+  .btn-primary{background:linear-gradient(135deg,var(--silver-1),var(--silver-2));color:#0d1526;}
+  .btn-secondary{background:transparent;border:1px solid var(--surface-2);color:var(--text);}
+
+  .error{color:var(--danger);font-size:12.5px;margin-top:10px;min-height:14px;}
+  .success-msg{color:var(--good);font-size:12.5px;margin-top:10px;min-height:14px;}
+
+  .stat-box{display:flex;justify-content:space-between;align-items:center;}
+  .stat-num{font-size:30px;color:var(--silver-1);font-weight:700;}
+  .stat-label{color:var(--muted);font-size:12.5px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- SCREEN: ADMIN LOGIN -->
+  <div class="screen active" id="screen-admin-login">
+    <div class="center-text">
+      <h1>DOTMAK</h1>
+      <p class="tagline">ADMIN DASHBOARD</p>
+    </div>
+    <div class="card">
+      <label>Admin Email</label>
+      <input id="admin-email" type="email" autocomplete="username">
+      <label>Password</label>
+      <input id="admin-password" type="password" autocomplete="current-password">
+      <div class="error" id="admin-login-error"></div>
+      <button class="btn-primary" onclick="handleAdminLogin()">Login করো</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: NO PERMISSION -->
+  <div class="screen" id="screen-no-permission">
+    <div class="card center-text">
+      <p style="color:var(--danger);">এই account এর Admin permission নেই।</p>
+      <button class="btn-secondary" onclick="handleAdminLogout()">আবার চেষ্টা করো</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: DASHBOARD -->
+  <div class="screen" id="screen-dashboard">
+    <div class="center-text">
+      <h1 style="font-size:20px;">Admin Dashboard</h1>
+    </div>
+
+    <div class="card stat-box">
+      <div>
+        <div class="stat-label">Total User</div>
+        <div class="stat-num" id="stat-total-users">--</div>
+      </div>
+      <button style="width:auto;margin:0;padding:9px 16px;" class="btn-secondary" onclick="loadStats()">Refresh</button>
+    </div>
+
+    <div class="card">
+      <h2>নিয়ম (Rules) Edit করো</h2>
+      <label>এই লেখাটাই Platform এর "নিয়ম" tab এ ইউজাররা দেখবে</label>
+      <textarea id="rules-textarea" placeholder="এখানে DOTMAK এর নিয়ম লেখো..."></textarea>
+      <div class="error" id="rules-error"></div>
+      <div class="success-msg" id="rules-success"></div>
+      <button class="btn-primary" onclick="saveRules()">নিয়ম Save করো</button>
+    </div>
+
+    <button class="btn-secondary" onclick="handleAdminLogout()">Admin Logout</button>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getDatabase, ref, get, set
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+// ===== FIREBASE INIT (Platform এর সাথে একই project) =====
+const firebaseConfig = {
+  apiKey: "AIzaSyB8cAr5O42P951A60X0si7uq8OQhm6N0UM",
+  authDomain: "dotmak-7b015.firebaseapp.com",
+  databaseURL: "https://dotmak-7b015-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dotmak-7b015",
+  storageBucket: "dotmak-7b015.firebasestorage.app",
+  messagingSenderId: "501130808160",
+  appId: "1:501130808160:web:327a274377457ddf59ec05"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== ADMIN LOGIN =====
+window.handleAdminLogin = function(){
+  const email = document.getElementById('admin-email').value.trim();
+  const password = document.getElementById('admin-password').value;
+  const errorBox = document.getElementById('admin-login-error');
+  errorBox.textContent = '';
+  if (!email || !password){ errorBox.textContent = 'Email আর Password দিতে হবে।'; return; }
+
+  signInWithEmailAndPassword(auth, email, password)
+    .catch(() => { errorBox.textContent = 'Email বা Password ভুল।'; });
+  // সফল হলে onAuthStateChanged এর মাধ্যমে dashboard এ যাওয়া হবে (নিচে দেখো)
+};
+
+// ===== AUTH STATE CHECK (admin কিনা যাচাই) =====
+onAuthStateChanged(auth, user => {
+  if (!user){
+    showScreen('screen-admin-login');
+    return;
+  }
+  get(ref(db, 'admins/' + user.uid)).then(snap => {
+    if (snap.val() === true){
+      showScreen('screen-dashboard');
+      loadStats();
+      loadRules();
+    } else {
+      showScreen('screen-no-permission');
+    }
+  }).catch(() => {
+    showScreen('screen-no-permission');
+  });
+});
+
+// ===== STATS LOAD =====
+window.loadStats = function(){
+  get(ref(db, 'meta/userCount')).then(snap => {
+    document.getElementById('stat-total-users').textContent = snap.val() || 0;
+  });
+};
+
+// ===== RULES LOAD =====
+function loadRules(){
+  get(ref(db, 'content/rules/text')).then(snap => {
+    document.getElementById('rules-textarea').value = snap.val() || '';
+  });
+}
+
+// ===== RULES SAVE =====
+window.saveRules = function(){
+  const text = document.getElementById('rules-textarea').value;
+  const errorBox = document.getElementById('rules-error');
+  const successBox = document.getElementById('rules-success');
+  errorBox.textContent = '';
+  successBox.textContent = '';
+
+  set(ref(db, 'content/rules'), { text: text, updatedAt: Date.now() })
+    .then(() => { successBox.textContent = 'নিয়ম save হয়ে গেছে।'; })
+    .catch(err => { errorBox.textContent = 'সমস্যা হয়েছে: ' + err.message; });
+};
+
+// ===== ADMIN LOGOUT =====
+window.handleAdminLogout = function(){
+  signOut(auth);
+};
+</script>
+</body>
+</html>
