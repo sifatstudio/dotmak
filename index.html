@@ -6,324 +6,489 @@
 <meta name="theme-color" content="#0d1526">
 <title>DOTMAK</title>
 <style>
-  :root{
-    --bg:#0d1526;--surface:#16213d;--surface-2:#1d2c4f;
-    --silver-1:#eef1f4;--silver-2:#aab6c4;--accent:#5b7fb5;
-    --text:#eef1f5;--muted:#8b96a8;--danger:#e0635f;--radius:14px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:sans-serif;}
-
-  /* ===== AUTH ===== */
-  .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 20px;background:radial-gradient(circle at 50% 0%,#1d2c4f 0%,#0d1526 70%);}
-  .screen{display:none;width:100%;max-width:380px;text-align:center;}
-  .screen.active{display:block;}
-  h1{font-size:28px;letter-spacing:3px;margin:0 0 4px;color:var(--silver-1);}
-  .tagline{color:var(--muted);font-size:13px;margin-bottom:26px;}
-  .card-auth{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:22px 20px;text-align:left;}
-  .card-auth h2{font-size:17px;margin:0 0 16px;color:var(--silver-1);text-align:center;}
-  label{display:block;font-size:12px;color:var(--muted);margin:14px 0 5px;}
-  input{width:100%;padding:12px;background:var(--bg);border:1px solid var(--surface-2);border-radius:8px;color:var(--text);font-size:16px;}
-  input:focus{outline:2px solid var(--accent);border-color:var(--accent);}
-  .dob-row{display:flex;gap:8px;}
-  .dob-row input{text-align:center;}
-  button{width:100%;padding:13px;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;margin-top:14px;}
-  .btn-primary{background:linear-gradient(135deg,var(--silver-1),var(--silver-2));color:#0d1526;}
-  .btn-secondary{background:transparent;border:1px solid var(--surface-2);color:var(--text);}
-  .btn-link{background:none;border:none;color:var(--accent);font-size:13px;text-decoration:underline;cursor:pointer;padding:0;width:auto;margin-top:14px;}
-  .error{color:var(--danger);font-size:12.5px;margin-top:10px;min-height:14px;}
-
-  /* ===== APP SHELL ===== */
-  #app-shell{display:none;}
-  #app-shell.active{display:flex;flex-direction:column;min-height:100vh;}
-
-  /* MOBILE TOPBAR */
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--surface-2);position:sticky;top:0;z-index:10;}
-  .home-btn{background:none;border:none;color:var(--silver-1);font-size:16px;font-weight:700;letter-spacing:2px;padding:0;margin:0;width:auto;cursor:pointer;}
-  .topbar-name{font-size:12px;color:var(--muted);}
-
-  /* MAIN */
-  .main{flex:1;overflow-y:auto;padding:20px 16px 40px;}
-
-  /* HOME GRID — mobile: 2 col */
-  .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  .home-card{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:30px 12px 24px;text-align:center;cursor:pointer;transition:border-color .2s,transform .1s;}
-  .home-card:active{transform:scale(.96);}
-  .home-card:hover{border-color:var(--accent);}
-  .hc-dot{width:10px;height:10px;border-radius:50%;background:var(--silver-2);margin:0 auto 14px;}
-  .hc-title{font-size:14px;font-weight:700;color:var(--silver-1);letter-spacing:.5px;}
-  .hc-desc{font-size:11px;color:var(--muted);margin-top:5px;}
-
-  /* SECTION VIEW */
-  .section-view{display:none;}
-  .section-view.active{display:block;}
-  .section-title{font-size:18px;color:var(--silver-1);margin:0 0 14px;}
-  .placeholder-box{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:24px 18px;text-align:center;color:var(--muted);font-size:13.5px;}
-
-  /* PROFILE */
-  .profile-row{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--surface-2);font-size:14px;}
-  .profile-row span:first-child{color:var(--muted);}
-  .dui-pill{display:inline-block;background:var(--surface-2);padding:6px 16px;border-radius:20px;font-size:13px;letter-spacing:1px;margin-bottom:16px;}
-  #rules-content{white-space:pre-line;text-align:left;line-height:1.7;}
-
-  /* ===== PC LAYOUT ===== */
-  @media(min-width:700px){
-    #app-shell.active{flex-direction:row;}
-    .topbar{display:none;}
-    .sidebar{width:210px;background:var(--surface);border-right:1px solid var(--surface-2);padding:28px 14px;display:flex;flex-direction:column;gap:6px;min-height:100vh;position:sticky;top:0;height:100vh;}
-    .sidebar-logo{font-size:18px;font-weight:700;letter-spacing:2px;color:var(--silver-1);margin-bottom:18px;padding-left:12px;}
-    .sidebar-btn{background:none;border:none;color:var(--muted);font-size:13.5px;padding:10px 12px;border-radius:8px;text-align:left;cursor:pointer;margin:0;width:100%;display:flex;align-items:center;gap:10px;}
-    .sidebar-btn:hover,.sidebar-btn.active{background:var(--surface-2);color:var(--silver-1);}
-    .sb-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
-    .sidebar-btn.active .sb-dot{background:var(--silver-1);}
-    .main{flex:1;padding:28px 32px 40px;}
-    .home-grid{grid-template-columns:1fr 1fr 1fr;}
-  }
-  @media(max-width:699px){
-    .sidebar{display:none;}
-  }
+:root{--bg:#0d1526;--surface:#16213d;--surface-2:#1d2c4f;--silver-1:#eef1f4;--silver-2:#aab6c4;--accent:#5b7fb5;--text:#eef1f5;--muted:#8b96a8;--danger:#e0635f;--good:#6fbf8b;--radius:14px;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:sans-serif;}
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 20px;background:radial-gradient(circle at 50% 0%,#1d2c4f,#0d1526 70%);}
+.screen{display:none;width:100%;max-width:380px;text-align:center;}
+.screen.active{display:block;}
+h1{font-size:28px;letter-spacing:3px;margin:0 0 4px;color:var(--silver-1);}
+.tagline{color:var(--muted);font-size:13px;margin-bottom:26px;}
+.card-a{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:22px 20px;text-align:left;}
+.card-a h2{font-size:17px;margin:0 0 16px;color:var(--silver-1);text-align:center;}
+label{display:block;font-size:12px;color:var(--muted);margin:12px 0 4px;}
+input,textarea{width:100%;padding:11px;background:var(--bg);border:1px solid var(--surface-2);border-radius:8px;color:var(--text);font-size:15px;font-family:sans-serif;}
+input:focus,textarea:focus{outline:2px solid var(--accent);border-color:var(--accent);}
+.dob-row{display:flex;gap:8px;}
+.dob-row input{text-align:center;}
+button{width:100%;padding:13px;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;margin-top:12px;}
+.btn-p{background:linear-gradient(135deg,var(--silver-1),var(--silver-2));color:#0d1526;}
+.btn-s{background:transparent;border:1px solid var(--surface-2);color:var(--text);}
+.btn-l{background:none;border:none;color:var(--accent);font-size:13px;text-decoration:underline;cursor:pointer;padding:0;width:auto;margin-top:12px;}
+.err{color:var(--danger);font-size:12.5px;margin-top:8px;min-height:14px;}
+/* APP SHELL */
+#app{display:none;}
+#app.active{display:flex;flex-direction:column;min-height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--surface);border-bottom:1px solid var(--surface-2);position:sticky;top:0;z-index:10;}
+.home-btn{background:none;border:none;color:var(--silver-1);font-size:15px;font-weight:700;letter-spacing:2px;padding:0;margin:0;width:auto;cursor:pointer;}
+.tb-name{font-size:12px;color:var(--muted);}
+.main{flex:1;overflow-y:auto;padding:18px 16px 40px;}
+/* HOME GRID */
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.hcard{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:28px 12px 22px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.hcard:active{transform:scale(.96);}
+.hcard:hover{border-color:var(--accent);}
+.hc-dot{width:9px;height:9px;border-radius:50%;background:var(--silver-2);margin:0 auto 12px;}
+.hc-t{font-size:14px;font-weight:700;color:var(--silver-1);}
+.hc-d{font-size:11px;color:var(--muted);margin-top:4px;}
+/* SECTION */
+.sec{display:none;}.sec.active{display:block;}
+.sec-title{font-size:17px;color:var(--silver-1);margin:0 0 14px;}
+.pbox{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:22px 16px;text-align:center;color:var(--muted);font-size:13.5px;}
+/* COMMUNITY CHAT */
+.chat-box{height:calc(100vh - 220px);overflow-y:auto;padding:10px 2px;display:flex;flex-direction:column;gap:12px;}
+.msg-row{display:flex;align-items:flex-end;gap:8px;}
+.msg-row.mine{flex-direction:row-reverse;}
+.msg-av{flex-shrink:0;}
+.msg-content{display:flex;flex-direction:column;max-width:72%;}
+.msg-row.mine .msg-content{align-items:flex-end;}
+.msg-nm{font-size:10.5px;color:var(--muted);margin-bottom:3px;}
+.bubble{padding:10px 13px;border-radius:18px;font-size:14px;line-height:1.5;word-break:break-word;}
+.bubble.theirs{background:var(--surface-2);border-bottom-left-radius:4px;}
+.bubble.mine{background:var(--accent);color:#fff;border-bottom-right-radius:4px;}
+.msg-time{font-size:10px;color:var(--muted);margin-top:3px;}
+.seen-row{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;}
+.chat-input-area{display:flex;gap:8px;margin-top:10px;align-items:flex-end;}
+.chat-input-area input{flex:1;margin:0;padding:11px 14px;border-radius:22px;}
+.send-btn{width:auto;padding:11px 18px;margin:0;border-radius:22px;flex-shrink:0;}
+/* POST */
+.post-create{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:14px;margin-bottom:16px;}
+.post-create textarea{resize:none;min-height:70px;border-radius:8px;}
+.post-card{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
+.post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.post-info{flex:1;}
+.post-name{font-weight:600;font-size:13.5px;color:var(--silver-1);}
+.post-time{font-size:11px;color:var(--muted);}
+.post-text{font-size:14px;line-height:1.6;margin-bottom:10px;word-break:break-word;}
+.comment-toggle{background:none;border:none;color:var(--accent);font-size:12.5px;padding:0;width:auto;margin:0;cursor:pointer;text-align:left;}
+.comments-box{margin-top:12px;border-top:1px solid var(--surface-2);padding-top:10px;}
+.comment-item{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start;}
+.comment-body{flex:1;}
+.comment-nm{font-size:12px;font-weight:600;color:var(--silver-2);}
+.comment-txt{font-size:13px;line-height:1.5;word-break:break-word;}
+.comment-add{display:flex;gap:8px;margin-top:10px;}
+.comment-add input{flex:1;margin:0;padding:9px 12px;font-size:13px;border-radius:20px;}
+.comment-add button{width:auto;padding:9px 16px;margin:0;border-radius:20px;font-size:13px;}
+/* PROFILE */
+.prof-pic-wrap{text-align:center;margin-bottom:18px;}
+.prof-pic-circle{width:80px;height:80px;border-radius:50%;margin:0 auto 10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--surface-2);font-size:30px;font-weight:700;color:var(--silver-1);}
+.prof-pic-circle img{width:100%;height:100%;object-fit:cover;}
+.prow{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--surface-2);font-size:14px;}
+.prow span:first-child{color:var(--muted);}
+.dui-pill{display:inline-block;background:var(--surface-2);padding:5px 14px;border-radius:20px;font-size:13px;letter-spacing:1px;margin-bottom:14px;}
+.rules-list li{padding:8px 0;border-bottom:1px solid var(--surface-2);font-size:14px;line-height:1.6;}
+/* PC SIDEBAR */
+@media(min-width:700px){
+  #app.active{flex-direction:row;}
+  .topbar{display:none;}
+  .sidebar{width:210px;background:var(--surface);border-right:1px solid var(--surface-2);padding:26px 14px;display:flex;flex-direction:column;gap:5px;min-height:100vh;position:sticky;top:0;height:100vh;}
+  .sb-logo{font-size:17px;font-weight:700;letter-spacing:2px;color:var(--silver-1);margin-bottom:16px;padding-left:10px;}
+  .sb-btn{background:none;border:none;color:var(--muted);font-size:13px;padding:10px 10px;border-radius:8px;text-align:left;cursor:pointer;margin:0;width:100%;display:flex;align-items:center;gap:9px;}
+  .sb-btn:hover,.sb-btn.on{background:var(--surface-2);color:var(--silver-1);}
+  .sb-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+  .sb-btn.on .sb-dot{background:var(--silver-1);}
+  .main{flex:1;padding:26px 28px 40px;}
+}
+@media(max-width:699px){.sidebar{display:none;}}
 </style>
 </head>
 <body>
 
-<!-- ===== AUTH ===== -->
+<!-- AUTH -->
 <div class="auth-wrap" id="auth-wrap">
-  <div class="screen active" id="screen-login">
+  <div class="screen active" id="sl">
     <h1>DOTMAK</h1>
     <p class="tagline">Create by SIFAT</p>
-    <div class="card-auth">
+    <div class="card-a">
       <h2>Login</h2>
       <label>DUI</label>
-      <input id="login-dui" type="text" inputmode="numeric" placeholder="10000001">
+      <input id="l-dui" type="text" inputmode="numeric" placeholder="10000001">
       <label>Password</label>
-      <input id="login-password" type="password">
-      <div class="error" id="login-error"></div>
-      <button class="btn-primary" onclick="handleLogin()">Login করো</button>
-      <button class="btn-secondary" onclick="showAuthScreen('screen-signup')">Build DOTMAK ID</button>
+      <input id="l-pw" type="password">
+      <div class="err" id="l-err"></div>
+      <button class="btn-p" onclick="doLogin()">Login করো</button>
+      <button class="btn-s" onclick="goAuth('ss')">Build DOTMAK ID</button>
     </div>
   </div>
-
-  <div class="screen" id="screen-signup">
+  <div class="screen" id="ss">
     <h1 style="font-size:21px;">Build DOTMAK ID</h1>
-    <div class="card-auth">
-      <label>নাম</label>
-      <input id="su-name" type="text">
+    <div class="card-a">
+      <label>নাম</label><input id="s-nm" type="text">
       <label>জন্ম তারিখ (DD / MM / YYYY)</label>
       <div class="dob-row">
-        <input id="su-dob-d" type="text" inputmode="numeric" maxlength="2" placeholder="DD">
-        <input id="su-dob-m" type="text" inputmode="numeric" maxlength="2" placeholder="MM">
-        <input id="su-dob-y" type="text" inputmode="numeric" maxlength="4" placeholder="YYYY">
+        <input id="s-dd" type="text" inputmode="numeric" maxlength="2" placeholder="DD">
+        <input id="s-mm" type="text" inputmode="numeric" maxlength="2" placeholder="MM">
+        <input id="s-yy" type="text" inputmode="numeric" maxlength="4" placeholder="YYYY">
       </div>
-      <label>ফোন নাম্বার</label>
-      <input id="su-phone" type="tel">
-      <label>Password (কমপক্ষে 6 অক্ষর)</label>
-      <input id="su-password" type="password">
-      <div class="error" id="su-error"></div>
-      <button class="btn-primary" onclick="handleSignup()">ID তৈরি করো</button>
-      <button class="btn-link" onclick="showAuthScreen('screen-login')">← Login এ ফিরে যাও</button>
+      <label>ফোন নাম্বার</label><input id="s-ph" type="tel">
+      <label>Password (কমপক্ষে 6 অক্ষর)</label><input id="s-pw" type="password">
+      <div class="err" id="s-err"></div>
+      <button class="btn-p" onclick="doSignup()">ID তৈরি করো</button>
+      <button class="btn-l" onclick="goAuth('sl')">← Login এ ফিরে যাও</button>
     </div>
   </div>
 </div>
 
-<!-- ===== APP SHELL ===== -->
-<div id="app-shell">
-
-  <!-- PC Sidebar -->
+<!-- APP -->
+<div id="app">
   <div class="sidebar">
-    <div class="sidebar-logo">DOTMAK</div>
-    <button class="sidebar-btn active" onclick="showHome()"><span class="sb-dot"></span>Home</button>
-    <button class="sidebar-btn" onclick="openSection('community')"><span class="sb-dot"></span>Community</button>
-    <button class="sidebar-btn" onclick="openSection('post')"><span class="sb-dot"></span>Post</button>
-    <button class="sidebar-btn" onclick="openSection('dotmak')"><span class="sb-dot"></span>DOTMAK</button>
-    <button class="sidebar-btn" onclick="openSection('rules')"><span class="sb-dot"></span>নিয়ম</button>
-    <button class="sidebar-btn" onclick="openSection('profile')"><span class="sb-dot"></span>Profile</button>
+    <div class="sb-logo">DOTMAK</div>
+    <button class="sb-btn on" id="sb-home" onclick="showHome()"><span class="sb-dot"></span>Home</button>
+    <button class="sb-btn" onclick="goSec('community')"><span class="sb-dot"></span>Community</button>
+    <button class="sb-btn" onclick="goSec('post')"><span class="sb-dot"></span>Post</button>
+    <button class="sb-btn" onclick="goSec('dotmak')"><span class="sb-dot"></span>DOTMAK</button>
+    <button class="sb-btn" onclick="goSec('rules')"><span class="sb-dot"></span>নিয়ম</button>
+    <button class="sb-btn" onclick="goSec('profile')"><span class="sb-dot"></span>Profile</button>
   </div>
-
-  <!-- Mobile Topbar -->
   <div class="topbar">
     <button class="home-btn" onclick="showHome()">HOME</button>
-    <div class="topbar-name" id="topbar-name">--</div>
+    <div class="tb-name" id="tb-nm"></div>
   </div>
-
-  <!-- Main Content -->
   <div class="main">
-
-    <!-- HOME GRID -->
-    <div id="view-home">
+    <!-- HOME -->
+    <!-- PC DEFAULT -->
+    <div id="v-pc" style="display:none;text-align:center;padding-top:18vh;">
+      <div style="font-size:38px;font-weight:700;letter-spacing:5px;color:#eef1f4;">DOTMAK</div>
+      <div style="color:#8b96a8;font-size:13px;margin-top:10px;">Create by SIFAT</div>
+    </div>
+    <div id="v-home">
       <div class="home-grid">
-        <div class="home-card" onclick="openSection('community')">
-          <div class="hc-dot"></div>
-          <div class="hc-title">Community</div>
-          <div class="hc-desc">সবার সাথে কথা বলো</div>
-        </div>
-        <div class="home-card" onclick="openSection('post')">
-          <div class="hc-dot"></div>
-          <div class="hc-title">Post</div>
-          <div class="hc-desc">মতামত শেয়ার করো</div>
-        </div>
-        <div class="home-card" onclick="openSection('dotmak')">
-          <div class="hc-dot"></div>
-          <div class="hc-title">DOTMAK</div>
-          <div class="hc-desc">Official খবর</div>
-        </div>
-        <div class="home-card" onclick="openSection('rules')">
-          <div class="hc-dot"></div>
-          <div class="hc-title">নিয়ম</div>
-          <div class="hc-desc">DOTMAK এর নিয়ম</div>
-        </div>
-        <div class="home-card" onclick="openSection('profile')">
-          <div class="hc-dot"></div>
-          <div class="hc-title">Profile</div>
-          <div class="hc-desc">তোমার পরিচয়</div>
-        </div>
+        <div class="hcard" onclick="goSec('community')"><div class="hc-dot"></div><div class="hc-t">Community</div><div class="hc-d">সবার সাথে কথা বলো</div></div>
+        <div class="hcard" onclick="goSec('post')"><div class="hc-dot"></div><div class="hc-t">Post</div><div class="hc-d">মতামত শেয়ার করো</div></div>
+        <div class="hcard" onclick="goSec('dotmak')"><div class="hc-dot"></div><div class="hc-t">DOTMAK</div><div class="hc-d">Official খবর</div></div>
+        <div class="hcard" onclick="goSec('rules')"><div class="hc-dot"></div><div class="hc-t">নিয়ম</div><div class="hc-d">DOTMAK এর নিয়ম</div></div>
+        <div class="hcard" onclick="goSec('profile')"><div class="hc-dot"></div><div class="hc-t">Profile</div><div class="hc-d">তোমার পরিচয়</div></div>
       </div>
     </div>
-
     <!-- COMMUNITY -->
-    <div class="section-view" id="view-community">
-      <h2 class="section-title">Community</h2>
-      <div class="placeholder-box">এখানে DOTMAK community chat আসবে।<br>(V1.3 তে যুক্ত হবে)</div>
-    </div>
-
-    <!-- POST -->
-    <div class="section-view" id="view-post">
-      <h2 class="section-title">Post</h2>
-      <div class="placeholder-box">এখানে ইউজাররা তাদের মতামত post করতে পারবে।<br>(V1.3 তে যুক্ত হবে)</div>
-    </div>
-
-    <!-- DOTMAK OFFICIAL -->
-    <div class="section-view" id="view-dotmak">
-      <h2 class="section-title">DOTMAK</h2>
-      <div class="placeholder-box">
-        DOTMAK এর সব official খবর এখানে আসবে।<br><br>
-        <strong style="color:var(--silver-1);">DOTMAK V1.2 চালু আছে।</strong>
+    <div class="sec" id="v-community">
+      <h2 class="sec-title">Community</h2>
+      <div class="chat-box" id="chat-box"></div>
+      <div class="chat-input-area">
+        <input id="chat-in" type="text" placeholder="Message লেখো...">
+        <button class="btn-p send-btn" onclick="sendMsg()">পাঠাও</button>
       </div>
     </div>
-
+    <!-- POST -->
+    <div class="sec" id="v-post">
+      <h2 class="sec-title">Post</h2>
+      <div class="post-create">
+        <textarea id="post-in" placeholder="তোমার মতামত লেখো..." rows="3"></textarea>
+        <button class="btn-p" onclick="createPost()">Post করো</button>
+      </div>
+      <div id="post-list"></div>
+    </div>
+    <!-- DOTMAK -->
+    <div class="sec" id="v-dotmak">
+      <h2 class="sec-title">DOTMAK</h2>
+      <div class="pbox"><strong style="color:var(--silver-1);">DOTMAK V1.2 চালু আছে।</strong><br><br>DOTMAK এর সব official খবর এখানে আসবে।</div>
+    </div>
     <!-- RULES -->
-    <div class="section-view" id="view-rules">
-      <h2 class="section-title">নিয়ম</h2>
-      <div class="placeholder-box" id="rules-content">লোড হচ্ছে...</div>
+    <div class="sec" id="v-rules">
+      <h2 class="sec-title">নিয়ম</h2>
+      <div class="pbox" id="rules-wrap">লোড হচ্ছে...</div>
     </div>
-
     <!-- PROFILE -->
-    <div class="section-view" id="view-profile">
-      <h2 class="section-title">Profile</h2>
-      <div class="dui-pill" id="profile-dui">DUI: --------</div>
-      <div class="profile-row"><span>নাম</span><span id="profile-name">--</span></div>
-      <div class="profile-row"><span>জন্ম তারিখ</span><span id="profile-dob">--</span></div>
-      <div class="profile-row"><span>ফোন</span><span id="profile-phone">--</span></div>
-      <button class="btn-secondary" style="margin-top:18px;" onclick="handleLogout()">Logout</button>
+    <div class="sec" id="v-profile">
+      <h2 class="sec-title">Profile</h2>
+      <div class="prof-pic-wrap">
+        <div class="prof-pic-circle" id="prof-pic-el"></div>
+        <button class="btn-s" style="width:auto;padding:8px 16px;font-size:13px;" onclick="document.getElementById('pic-inp').click()">ছবি পরিবর্তন করো</button>
+        <input type="file" id="pic-inp" accept="image/*" style="display:none">
+      </div>
+      <div style="text-align:center;" class="dui-pill" id="p-dui"></div>
+      <div class="prow"><span>নাম</span><span id="p-nm"></span></div>
+      <div class="prow"><span>জন্ম তারিখ</span><span id="p-dob"></span></div>
+      <div class="prow"><span>ফোন</span><span id="p-ph"></span></div>
+      <button class="btn-s" style="margin-top:18px;" onclick="doLogout()">Logout</button>
     </div>
-
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, runTransaction, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, runTransaction, set, get, push, onValue, update, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB8cAr5O42P951A60X0si7uq8OQhm6N0UM",
-  authDomain: "dotmak-7b015.firebaseapp.com",
-  databaseURL: "https://dotmak-7b015-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dotmak-7b015",
-  storageBucket: "dotmak-7b015.firebasestorage.app",
-  messagingSenderId: "501130808160",
-  appId: "1:501130808160:web:327a274377457ddf59ec05"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+const app = initializeApp({
+  apiKey:"AIzaSyB8cAr5O42P951A60X0si7uq8OQhm6N0UM",
+  authDomain:"dotmak-7b015.firebaseapp.com",
+  databaseURL:"https://dotmak-7b015-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"dotmak-7b015",
+  storageBucket:"dotmak-7b015.firebasestorage.app",
+  messagingSenderId:"501130808160",
+  appId:"1:501130808160:web:327a274377457ddf59ec05"
+});
+const auth = getAuth(app), db = getDatabase(app);
+let CU = null, CP = null, unsubMsg = null, unsubSeen = null, seenData = {}, msgsData = {};
 
-window.showAuthScreen = function(id){
-  document.querySelectorAll('#auth-wrap .screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-};
-
-window.showHome = function(){
-  document.querySelectorAll('.section-view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-home').style.display='';
-  document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelector('.sidebar-btn').classList.add('active');
-};
-
-window.openSection = function(name){
-  document.getElementById('view-home').style.display='none';
-  document.querySelectorAll('.section-view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
-  document.querySelectorAll('.sidebar-btn').forEach(b=>{
-    const t=b.textContent.trim().toLowerCase();
-    b.classList.toggle('active', t===name||(name==='rules'&&t==='নিয়ম')||(name==='community'&&t==='community')||(name==='profile'&&t==='profile'));
-  });
-};
-
-function duiToEmail(dui){ return 'dui'+dui.trim()+'@dotmak.local'; }
-function generateNextDUI(){
-  return runTransaction(ref(db,'meta/duiCounter'),cur=>cur===null?10000001:cur+1).then(r=>r.snapshot.val());
+// ---- UTILS ----
+function esc(s){const d=document.createElement('div');d.appendChild(document.createTextNode(s));return d.innerHTML;}
+function av(name, pic, sz){
+  if(pic) return `<img src="${pic}" style="width:${sz}px;height:${sz}px;border-radius:50%;object-fit:cover;flex-shrink:0;">`;
+  const cs=['#5b7fb5','#7b5ba5','#5ba57b','#a55b7b','#a5805b'];
+  return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${cs[name.charCodeAt(0)%5]};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${Math.round(sz*.4)}px;color:#fff;flex-shrink:0;">${name.charAt(0).toUpperCase()}</div>`;
 }
-function incrementUserCount(){
-  return runTransaction(ref(db,'meta/userCount'),cur=>cur===null?1:cur+1);
+function fmtTime(ts){return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function duiMail(d){return 'dui'+d+'@dotmak.local';}
+
+// ---- AUTH UI ----
+window.goAuth = id=>{document.querySelectorAll('#auth-wrap .screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');};
+
+// ---- AGE CHECK ----
+function calcAge(d,m,y){
+  const dob=new Date(+y,m-1,+d), today=new Date();
+  let age=today.getFullYear()-dob.getFullYear();
+  if(today.getMonth()<dob.getMonth()||(today.getMonth()===dob.getMonth()&&today.getDate()<dob.getDate())) age--;
+  return age;
 }
-function loadRules(){
-  get(ref(db,'content/rules/text')).then(snap=>{
-    const t=snap.val();
-    document.getElementById('rules-content').textContent=t&&t.trim()?t:'এখনো কোনো নিয়ম যুক্ত করা হয়নি।';
-  }).catch(()=>{ document.getElementById('rules-content').textContent='নিয়ম লোড করা যায়নি।'; });
-}
-function enterApp(data){
+
+// ---- SIGNUP ----
+window.doSignup = async()=>{
+  const nm=document.getElementById('s-nm').value.trim(),
+        dd=document.getElementById('s-dd').value.trim(),
+        mm=document.getElementById('s-mm').value.trim(),
+        yy=document.getElementById('s-yy').value.trim(),
+        ph=document.getElementById('s-ph').value.trim(),
+        pw=document.getElementById('s-pw').value,
+        err=document.getElementById('s-err');
+  err.textContent='';
+  if(!nm||!dd||!mm||!yy||!ph||!pw){err.textContent='সব field পূরণ করো।';return;}
+  if(!/^\d{1,2}$/.test(dd)||!/^\d{1,2}$/.test(mm)||!/^\d{4}$/.test(yy)){err.textContent='জন্ম তারিখ সঠিকভাবে দাও।';return;}
+  if(calcAge(dd,mm,yy)<14){err.textContent='DOTMAK ব্যবহারের জন্য সর্বনিম্ন ১৪ বছর বয়স হতে হবে।';return;}
+  if(pw.length<6){err.textContent='Password কমপক্ষে 6 অক্ষরের হতে হবে।';return;}
+  const dob=dd.padStart(2,'0')+'/'+mm.padStart(2,'0')+'/'+yy;
+  try{
+    const dui=await runTransaction(ref(db,'meta/duiCounter'),c=>c===null?10000001:c+1).then(r=>r.snapshot.val());
+    const cred=await createUserWithEmailAndPassword(auth,duiMail(dui),pw);
+    const ud={name:nm,dob,phone:ph,dui,duiClass:1,joinDate:Date.now(),pic:null,coin:{silver:0,gold:0,s:0}};
+    await set(ref(db,'users/'+cred.user.uid),ud);
+    await set(ref(db,'userIndex/'+cred.user.uid),{name:nm,pic:null,dui,joinDate:Date.now()});
+    await runTransaction(ref(db,'meta/userCount'),c=>c===null?1:c+1);
+    localStorage.setItem('dotmak_dui',String(dui));
+    enterApp(cred.user,ud);
+  }catch(e){err.textContent='সমস্যা হয়েছে: '+e.message;}
+};
+
+// ---- LOGIN ----
+window.doLogin = async()=>{
+  const dui=document.getElementById('l-dui').value.trim(),
+        pw=document.getElementById('l-pw').value,
+        err=document.getElementById('l-err');
+  err.textContent='';
+  if(!dui||!pw){err.textContent='DUI আর Password দিতে হবে।';return;}
+  try{
+    const cred=await signInWithEmailAndPassword(auth,duiMail(dui),pw);
+    const snap=await get(ref(db,'users/'+cred.user.uid));
+    const ud=snap.val();if(!ud)return;
+    localStorage.setItem('dotmak_dui',String(dui));
+    enterApp(cred.user,ud);
+  }catch(e){err.textContent='DUI বা Password ভুল।';}
+};
+
+// DUI auto-fill
+const savedDui=localStorage.getItem('dotmak_dui');
+if(savedDui) document.getElementById('l-dui').value=savedDui;
+
+// ---- ENTER APP ----
+function enterApp(user,ud){
+  CU=user; CP={...ud};
   document.getElementById('auth-wrap').style.display='none';
-  document.getElementById('app-shell').classList.add('active');
-  document.getElementById('topbar-name').textContent=data.name;
-  document.getElementById('profile-dui').textContent='DUI: '+data.dui;
-  document.getElementById('profile-name').textContent=data.name;
-  document.getElementById('profile-dob').textContent=data.dob;
-  document.getElementById('profile-phone').textContent=data.phone;
-  loadRules();
+  document.getElementById('app').classList.add('active');
+  document.getElementById('tb-nm').textContent=ud.name;
+  document.getElementById('p-dui').textContent='DUI: '+ud.dui;
+  document.getElementById('p-nm').textContent=ud.name;
+  document.getElementById('p-dob').textContent=ud.dob;
+  document.getElementById('p-ph').textContent=ud.phone;
+  renderProfPic();
   showHome();
 }
 
-window.handleSignup = function(){
-  const name=document.getElementById('su-name').value.trim();
-  const d=document.getElementById('su-dob-d').value.trim();
-  const m=document.getElementById('su-dob-m').value.trim();
-  const y=document.getElementById('su-dob-y').value.trim();
-  const phone=document.getElementById('su-phone').value.trim();
-  const password=document.getElementById('su-password').value;
-  const err=document.getElementById('su-error');
-  err.textContent='';
-  if(!name||!d||!m||!y||!phone||!password){err.textContent='সব field পূরণ করো।';return;}
-  if(!/^\d{1,2}$/.test(d)||!/^\d{1,2}$/.test(m)||!/^\d{4}$/.test(y)){err.textContent='জন্ম তারিখ সঠিকভাবে দাও।';return;}
-  if(password.length<6){err.textContent='Password কমপক্ষে 6 অক্ষরের হতে হবে।';return;}
-  const dob=d.padStart(2,'0')+'/'+m.padStart(2,'0')+'/'+y;
-  generateNextDUI().then(dui=>{
-    return createUserWithEmailAndPassword(auth,duiToEmail(String(dui)),password).then(cred=>{
-      const userData={name,dob,phone,dui,duiClass:1,joinDate:Date.now(),coin:{silver:0,gold:0,s:0}};
-      return set(ref(db,'users/'+cred.user.uid),userData).then(()=>{incrementUserCount();return userData;});
-    });
-  }).then(enterApp).catch(e=>{err.textContent='সমস্যা হয়েছে: '+e.message;});
+// ---- LOGOUT ----
+window.doLogout=()=>signOut(auth).then(()=>{
+  stopCommunity();
+  CU=null;CP=null;
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('auth-wrap').style.display='flex';
+  goAuth('sl');
+});
+
+// ---- NAV ----
+window.isPC=()=>window.innerWidth>=700;
+window.showHome=()=>{
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  const pc=isPC();
+  document.getElementById('v-pc').style.display=pc?'block':'none';
+  document.getElementById('v-home').style.display=pc?'none':'';
+  document.getElementById('sb-home').classList.add('on');
+  stopCommunity();
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('sb-home').classList.add('on');
+};
+window.goSec=name=>{
+  document.getElementById('v-home').style.display='none';
+  document.getElementById('v-pc').style.display='none';
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.getElementById('v-'+name).classList.add('active');
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('on'));
+  if(name==='community') startCommunity();
+  else stopCommunity();
+  if(name==='post') loadPosts();
+  if(name==='rules') loadRules();
 };
 
-window.handleLogin = function(){
-  const dui=document.getElementById('login-dui').value.trim();
-  const password=document.getElementById('login-password').value;
-  const err=document.getElementById('login-error');
-  err.textContent='';
-  if(!dui||!password){err.textContent='DUI আর Password দিতে হবে।';return;}
-  signInWithEmailAndPassword(auth,duiToEmail(dui),password)
-    .then(cred=>get(ref(db,'users/'+cred.user.uid)))
-    .then(snap=>{const d=snap.val();if(!d){return;}enterApp(d);})
-    .catch(()=>{err.textContent='DUI বা Password ভুল।';});
-};
-
-window.handleLogout = function(){
-  signOut(auth).then(()=>{
-    document.getElementById('app-shell').classList.remove('active');
-    document.getElementById('auth-wrap').style.display='flex';
-    showAuthScreen('screen-login');
+// ---- PROFILE PIC ----
+function renderProfPic(){
+  const el=document.getElementById('prof-pic-el');
+  if(CP&&CP.pic) el.innerHTML=`<img src="${CP.pic}" style="width:100%;height:100%;object-fit:cover;">`;
+  else el.textContent=CP?CP.name.charAt(0).toUpperCase():'?';
+}
+document.getElementById('pic-inp').addEventListener('change',async e=>{
+  const file=e.target.files[0];if(!file)return;
+  const b64=await compressImg(file,80,80,0.7);
+  await update(ref(db,'users/'+CU.uid),{pic:b64});
+  await update(ref(db,'userIndex/'+CU.uid),{pic:b64});
+  CP.pic=b64;renderProfPic();
+  e.target.value='';
+});
+function compressImg(file,w,h,q){
+  return new Promise(res=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        const ctx=c.getContext('2d');
+        const sz=Math.min(img.width,img.height);
+        const ox=(img.width-sz)/2,oy=(img.height-sz)/2;
+        ctx.drawImage(img,ox,oy,sz,sz,0,0,w,h);
+        res(c.toDataURL('image/jpeg',q));
+      };img.src=ev.target.result;
+    };r.readAsDataURL(file);
   });
+}
+
+// ---- COMMUNITY CHAT ----
+function startCommunity(){
+  const msgRef=query(ref(db,'community/messages'),limitToLast(30));
+  unsubMsg=onValue(msgRef,snap=>{
+    msgsData={};
+    snap.forEach(c=>{msgsData[c.key]=c.val();});
+    renderMsgs();
+  });
+  unsubSeen=onValue(ref(db,'community/seen'),snap=>{
+    seenData=snap.val()||{};
+    updateSeen();
+  });
+  set(ref(db,'community/seen/'+CU.uid),{ts:Date.now(),name:CP.name,pic:CP.pic||null});
+  const inp=document.getElementById('chat-in');
+  inp.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}};
+}
+function stopCommunity(){
+  if(unsubMsg){unsubMsg();unsubMsg=null;}
+  if(unsubSeen){unsubSeen();unsubSeen=null;}
+}
+function renderMsgs(){
+  const box=document.getElementById('chat-box');
+  const msgs=Object.values(msgsData).sort((a,b)=>a.ts-b.ts);
+  if(!msgs.length){box.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px;">এখনো কোনো message নেই।</div>';return;}
+  let html='';
+  msgs.forEach((msg,i)=>{
+    const mine=msg.uid===CU.uid;
+    html+=`<div class="msg-row ${mine?'mine':'theirs'}">`;
+    if(!mine) html+=`<div class="msg-av">${av(msg.name,msg.pic,30)}</div>`;
+    html+=`<div class="msg-content">`;
+    if(!mine) html+=`<div class="msg-nm">${esc(msg.name)}</div>`;
+    html+=`<div class="bubble ${mine?'mine':'theirs'}">${esc(msg.text)}</div>`;
+    html+=`<div class="msg-time">${fmtTime(msg.ts)}</div>`;
+    if(i===msgs.length-1) html+=`<div class="seen-row" id="seen-row"></div>`;
+    html+=`</div></div>`;
+  });
+  box.innerHTML=html;
+  box.scrollTop=box.scrollHeight;
+  updateSeen();
+}
+function updateSeen(){
+  const row=document.getElementById('seen-row');if(!row)return;
+  const msgs=Object.values(msgsData);if(!msgs.length)return;
+  const lastTs=Math.max(...msgs.map(m=>m.ts));
+  let html='';
+  Object.entries(seenData).forEach(([uid,d])=>{
+    if(uid!==CU.uid&&d.ts>=lastTs) html+=`<div title="${esc(d.name)}">${av(d.name,d.pic,16)}</div>`;
+  });
+  row.innerHTML=html;
+}
+window.sendMsg=()=>{
+  const inp=document.getElementById('chat-in');
+  const text=inp.value.trim();if(!text)return;
+  push(ref(db,'community/messages'),{uid:CU.uid,name:CP.name,pic:CP.pic||null,text,ts:Date.now()});
+  set(ref(db,'community/seen/'+CU.uid),{ts:Date.now(),name:CP.name,pic:CP.pic||null});
+  inp.value='';
 };
+
+// ---- POST ----
+let unsubPosts=null;
+function loadPosts(){
+  if(unsubPosts){unsubPosts();unsubPosts=null;}
+  unsubPosts=onValue(ref(db,'posts'),snap=>{
+    const list=document.getElementById('post-list');
+    const data=snap.val()||{};
+    const posts=Object.entries(data).sort((a,b)=>b[1].ts-a[1].ts);
+    if(!posts.length){list.innerHTML='<div class="pbox">এখনো কোনো post নেই।</div>';return;}
+    list.innerHTML=posts.map(([id,p])=>postHTML(id,p)).join('');
+  });
+}
+function postHTML(id,p){
+  const cmts=p.comments?Object.values(p.comments):[],cnt=cmts.length;
+  const chtml=cmts.sort((a,b)=>a.ts-b.ts).map(c=>`
+    <div class="comment-item">
+      ${av(c.name,null,24)}
+      <div class="comment-body"><div class="comment-nm">${esc(c.name)}</div><div class="comment-txt">${esc(c.text)}</div></div>
+    </div>`).join('');
+  return `<div class="post-card">
+    <div class="post-header">${av(p.name,p.pic,36)}<div class="post-info"><div class="post-name">${esc(p.name)}</div><div class="post-time">${fmtTime(p.ts)}</div></div></div>
+    <div class="post-text">${esc(p.text)}</div>
+    <button class="comment-toggle" onclick="toggleCmt('${id}')">comment (${cnt})</button>
+    <div class="comments-box" id="cmt-${id}" style="display:none">
+      <div id="cmt-list-${id}">${chtml||'<div style="font-size:12.5px;color:var(--muted);">এখনো কোনো comment নেই।</div>'}</div>
+      <div class="comment-add"><input id="cmt-in-${id}" type="text" placeholder="comment লেখো..."><button class="btn-p" onclick="addComment('${id}')">দাও</button></div>
+    </div>
+  </div>`;
+}
+window.toggleCmt=id=>{const el=document.getElementById('cmt-'+id);el.style.display=el.style.display==='none'?'block':'none';};
+window.createPost=()=>{
+  const inp=document.getElementById('post-in'),text=inp.value.trim();
+  if(!text)return;
+  push(ref(db,'posts'),{uid:CU.uid,name:CP.name,pic:CP.pic||null,text,ts:Date.now()});
+  inp.value='';
+};
+window.addComment=(postId)=>{
+  const inp=document.getElementById('cmt-in-'+postId),text=inp.value.trim();
+  if(!text)return;
+  push(ref(db,'posts/'+postId+'/comments'),{uid:CU.uid,name:CP.name,text,ts:Date.now()});
+  inp.value='';
+};
+
+// ---- RULES ----
+function loadRules(){
+  get(ref(db,'content/rules')).then(snap=>{
+    const wrap=document.getElementById('rules-wrap');
+    const data=snap.val();
+    if(!data||Object.keys(data).length===0){wrap.innerHTML='এখনো কোনো নিয়ম যুক্ত করা হয়নি।';return;}
+    const list=Object.values(data).sort((a,b)=>(a.order||0)-(b.order||0));
+    wrap.innerHTML='<ol class="rules-list" style="margin:0;padding-left:20px;">'+list.map(r=>`<li>${esc(r.text)}</li>`).join('')+'</ol>';
+  }).catch(()=>{document.getElementById('rules-wrap').innerHTML='নিয়ম লোড করা যায়নি।';});
+}
 </script>
 </body>
 </html>
