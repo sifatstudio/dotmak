@@ -3,191 +3,280 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0d1526">
 <title>DOTMAK Admin</title>
 <style>
-  :root{
-    --bg:#0d1526; --surface:#16213d; --surface-2:#1d2c4f;
-    --silver-1:#eef1f4; --silver-2:#aab6c4; --accent:#5b7fb5;
-    --text:#eef1f5; --muted:#8b96a8; --danger:#e0635f; --good:#6fbf8b; --radius:14px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:sans-serif;}
-
-  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 20px;}
-  .screen{display:none;width:100%;max-width:420px;}
-  .screen.active{display:block;}
-  .center-text{text-align:center;}
-
-  h1{font-size:24px;letter-spacing:2px;margin:0 0 4px;color:var(--silver-1);}
-  .tagline{color:var(--muted);font-size:12.5px;margin-bottom:22px;}
-
-  .card{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
-  .card h2{font-size:15px;margin:0 0 14px;color:var(--silver-1);}
-
-  label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;}
-  input,textarea{width:100%;padding:12px;background:var(--bg);border:1px solid var(--surface-2);border-radius:8px;color:var(--text);font-size:15px;font-family:sans-serif;}
-  textarea{min-height:160px;resize:vertical;line-height:1.5;}
-  input:focus,textarea:focus{outline:2px solid var(--accent);border-color:var(--accent);}
-
-  button{width:100%;padding:13px;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;margin-top:14px;}
-  .btn-primary{background:linear-gradient(135deg,var(--silver-1),var(--silver-2));color:#0d1526;}
-  .btn-secondary{background:transparent;border:1px solid var(--surface-2);color:var(--text);}
-
-  .error{color:var(--danger);font-size:12.5px;margin-top:10px;min-height:14px;}
-  .success-msg{color:var(--good);font-size:12.5px;margin-top:10px;min-height:14px;}
-
-  .stat-box{display:flex;justify-content:space-between;align-items:center;}
-  .stat-num{font-size:30px;color:var(--silver-1);font-weight:700;}
-  .stat-label{color:var(--muted);font-size:12.5px;}
+:root{--bg:#0d1526;--surface:#16213d;--surface-2:#1d2c4f;--silver-1:#eef1f4;--silver-2:#aab6c4;--accent:#5b7fb5;--text:#eef1f5;--muted:#8b96a8;--danger:#e0635f;--good:#6fbf8b;--radius:14px;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:sans-serif;}
+#app{display:flex;min-height:100vh;}
+/* SIDEBAR */
+.sb{width:200px;background:var(--surface);border-right:1px solid var(--surface-2);padding:24px 14px;display:flex;flex-direction:column;gap:5px;position:sticky;top:0;height:100vh;}
+.sb-logo{font-size:15px;font-weight:700;letter-spacing:2px;color:var(--silver-1);margin-bottom:4px;}
+.sb-sub{font-size:11px;color:var(--muted);margin-bottom:18px;}
+.sb-btn{background:none;border:none;color:var(--muted);font-size:13px;padding:10px;border-radius:8px;text-align:left;cursor:pointer;width:100%;display:flex;align-items:center;gap:8px;margin:0;}
+.sb-btn:hover,.sb-btn.on{background:var(--surface-2);color:var(--silver-1);}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+.sb-btn.on .sb-dot{background:var(--silver-1);}
+.sb-logout{margin-top:auto;}
+/* MAIN */
+.main{flex:1;padding:28px 28px 40px;overflow-y:auto;}
+.sec{display:none;}.sec.active{display:block;}
+h2{font-size:18px;color:var(--silver-1);margin:0 0 18px;}
+/* AUTH */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 0%,#1d2c4f,#0d1526 70%);}
+.auth-card{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:26px 22px;width:100%;max-width:360px;}
+.auth-card h1{font-size:22px;letter-spacing:2px;color:var(--silver-1);margin:0 0 4px;text-align:center;}
+.auth-sub{color:var(--muted);font-size:12px;text-align:center;margin-bottom:18px;}
+label{display:block;font-size:12px;color:var(--muted);margin:12px 0 4px;}
+input,textarea{width:100%;padding:11px;background:var(--bg);border:1px solid var(--surface-2);border-radius:8px;color:var(--text);font-size:15px;font-family:sans-serif;}
+input:focus,textarea:focus{outline:2px solid var(--accent);}
+textarea{resize:vertical;min-height:60px;}
+button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;margin-top:12px;}
+.btn-p{background:linear-gradient(135deg,var(--silver-1),var(--silver-2));color:#0d1526;}
+.btn-s{background:transparent;border:1px solid var(--surface-2);color:var(--text);}
+.btn-d{background:transparent;border:1px solid var(--danger);color:var(--danger);}
+.err{color:var(--danger);font-size:12.5px;margin-top:8px;min-height:14px;}
+.good{color:var(--good);font-size:12.5px;margin-top:8px;min-height:14px;}
+/* STAT */
+.stat-row{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap;}
+.stat-box{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:18px 22px;min-width:130px;}
+.stat-num{font-size:28px;font-weight:700;color:var(--silver-1);}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+/* USER LIST */
+.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.user-card{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:16px 12px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.user-card:hover{border-color:var(--accent);}
+.u-av{width:54px;height:54px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#fff;overflow:hidden;flex-shrink:0;}
+.u-av img{width:100%;height:100%;object-fit:cover;}
+.u-nm{font-size:13px;font-weight:600;color:var(--silver-1);word-break:break-word;}
+.u-dui{font-size:11px;color:var(--muted);margin-top:3px;}
+/* USER DETAIL */
+.detail-back{background:none;border:none;color:var(--accent);font-size:13px;padding:0;width:auto;margin:0 0 16px;cursor:pointer;text-decoration:underline;}
+.detail-av{width:80px;height:80px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:30px;color:#fff;overflow:hidden;}
+.detail-av img{width:100%;height:100%;object-fit:cover;}
+.d-row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--surface-2);font-size:14px;}
+.d-row span:first-child{color:var(--muted);}
+/* RULES */
+.rule-add-box{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:16px;margin-bottom:18px;}
+.rule-item{background:var(--surface);border:1px solid var(--surface-2);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:10px;}
+.rule-num{color:var(--muted);font-size:13px;flex-shrink:0;padding-top:1px;}
+.rule-txt{flex:1;font-size:14px;line-height:1.6;}
+.rule-del{background:none;border:none;color:var(--danger);font-size:12px;padding:4px 8px;border-radius:6px;margin:0;width:auto;cursor:pointer;flex-shrink:0;}
+.rule-del:hover{background:rgba(224,99,95,.15);}
+@media(max-width:600px){
+  #app{flex-direction:column;}
+  .sb{width:100%;height:auto;flex-direction:row;flex-wrap:wrap;position:static;padding:12px;}
+  .sb-logo,.sb-sub{display:none;}
+  .sb-btn{width:auto;padding:8px 12px;font-size:12px;}
+}
 </style>
 </head>
 <body>
 
-<div class="wrap">
-
-  <!-- SCREEN: ADMIN LOGIN -->
-  <div class="screen active" id="screen-admin-login">
-    <div class="center-text">
-      <h1>DOTMAK</h1>
-      <p class="tagline">ADMIN DASHBOARD</p>
-    </div>
-    <div class="card">
-      <label>Admin Email</label>
-      <input id="admin-email" type="email" autocomplete="username">
-      <label>Password</label>
-      <input id="admin-password" type="password" autocomplete="current-password">
-      <div class="error" id="admin-login-error"></div>
-      <button class="btn-primary" onclick="handleAdminLogin()">Login করো</button>
-    </div>
+<!-- AUTH -->
+<div class="auth-wrap" id="auth-wrap">
+  <div class="auth-card">
+    <h1>DOTMAK</h1>
+    <p class="auth-sub">ADMIN DASHBOARD</p>
+    <label>Admin Email</label>
+    <input id="a-email" type="email">
+    <label>Password</label>
+    <input id="a-pw" type="password">
+    <div class="err" id="a-err"></div>
+    <button class="btn-p" onclick="doLogin()">Login করো</button>
   </div>
+</div>
 
-  <!-- SCREEN: NO PERMISSION -->
-  <div class="screen" id="screen-no-permission">
-    <div class="card center-text">
-      <p style="color:var(--danger);">এই account এর Admin permission নেই।</p>
-      <button class="btn-secondary" onclick="handleAdminLogout()">আবার চেষ্টা করো</button>
-    </div>
+<!-- DASHBOARD -->
+<div id="app" style="display:none;">
+  <div class="sb">
+    <div class="sb-logo">DOTMAK</div>
+    <div class="sb-sub">Admin Panel</div>
+    <button class="sb-btn on" id="sb-users" onclick="goSec('users')"><span class="sb-dot"></span>User List</button>
+    <button class="sb-btn" id="sb-rules" onclick="goSec('rules')"><span class="sb-dot"></span>নিয়ম</button>
+    <button class="btn-s sb-logout" onclick="doLogout()">Logout</button>
   </div>
+  <div class="main">
 
-  <!-- SCREEN: DASHBOARD -->
-  <div class="screen" id="screen-dashboard">
-    <div class="center-text">
-      <h1 style="font-size:20px;">Admin Dashboard</h1>
-    </div>
-
-    <div class="card stat-box">
-      <div>
-        <div class="stat-label">Total User</div>
-        <div class="stat-num" id="stat-total-users">--</div>
+    <!-- USERS -->
+    <div class="sec active" id="sec-users">
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-num" id="stat-total">--</div><div class="stat-lbl">Total User</div></div>
       </div>
-      <button style="width:auto;margin:0;padding:9px 16px;" class="btn-secondary" onclick="loadStats()">Refresh</button>
+      <h2>User List</h2>
+      <div id="user-grid-wrap"></div>
+      <!-- USER DETAIL (hidden by default) -->
+      <div id="user-detail" style="display:none;">
+        <button class="detail-back" onclick="closeDetail()">← User List এ ফিরে যাও</button>
+        <div style="text-align:center;">
+          <div class="detail-av" id="d-av"></div>
+        </div>
+        <div class="d-row"><span>নাম</span><span id="d-nm"></span></div>
+        <div class="d-row"><span>DUI</span><span id="d-dui"></span></div>
+        <div class="d-row"><span>জন্ম তারিখ</span><span id="d-dob"></span></div>
+        <div class="d-row"><span>ফোন</span><span id="d-ph"></span></div>
+        <div class="d-row"><span>Join Date</span><span id="d-jd"></span></div>
+      </div>
     </div>
 
-    <div class="card">
-      <h2>নিয়ম (Rules) Edit করো</h2>
-      <label>এই লেখাটাই Platform এর "নিয়ম" tab এ ইউজাররা দেখবে</label>
-      <textarea id="rules-textarea" placeholder="এখানে DOTMAK এর নিয়ম লেখো..."></textarea>
-      <div class="error" id="rules-error"></div>
-      <div class="success-msg" id="rules-success"></div>
-      <button class="btn-primary" onclick="saveRules()">নিয়ম Save করো</button>
+    <!-- RULES -->
+    <div class="sec" id="sec-rules">
+      <h2>নিয়ম</h2>
+      <div class="rule-add-box">
+        <label>নতুন নিয়ম লেখো</label>
+        <textarea id="rule-in" placeholder="নিয়মটা লেখো..." rows="2"></textarea>
+        <div class="err" id="rule-err"></div>
+        <div class="good" id="rule-ok"></div>
+        <button class="btn-p" onclick="addRule()">নিয়ম যোগ করো</button>
+      </div>
+      <div id="rules-list"></div>
     </div>
 
-    <button class="btn-secondary" onclick="handleAdminLogout()">Admin Logout</button>
   </div>
-
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-  getDatabase, ref, get, set
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, get, set, push, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// ===== FIREBASE INIT (Platform এর সাথে একই project) =====
-const firebaseConfig = {
-  apiKey: "AIzaSyB8cAr5O42P951A60X0si7uq8OQhm6N0UM",
-  authDomain: "dotmak-7b015.firebaseapp.com",
-  databaseURL: "https://dotmak-7b015-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dotmak-7b015",
-  storageBucket: "dotmak-7b015.firebasestorage.app",
-  messagingSenderId: "501130808160",
-  appId: "1:501130808160:web:327a274377457ddf59ec05"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+const app = initializeApp({
+  apiKey:"AIzaSyB8cAr5O42P951A60X0si7uq8OQhm6N0UM",
+  authDomain:"dotmak-7b015.firebaseapp.com",
+  databaseURL:"https://dotmak-7b015-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"dotmak-7b015",
+  storageBucket:"dotmak-7b015.firebasestorage.app",
+  messagingSenderId:"501130808160",
+  appId:"1:501130808160:web:327a274377457ddf59ec05"
+});
+const auth = getAuth(app), db = getDatabase(app);
 
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+function esc(s){const d=document.createElement('div');d.appendChild(document.createTextNode(String(s||'')));return d.innerHTML;}
+function av(name,pic,sz){
+  if(pic) return `<img src="${pic}" style="width:100%;height:100%;object-fit:cover;">`;
+  const cs=['#5b7fb5','#7b5ba5','#5ba57b','#a55b7b','#a5805b'];
+  return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${cs[(name||'?').charCodeAt(0)%5]};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${Math.round(sz*.4)}px;color:#fff;">${(name||'?').charAt(0).toUpperCase()}</div>`;
 }
+function fmtDate(ts){return ts?new Date(ts).toLocaleDateString('bn-BD'):'--';}
 
-// ===== ADMIN LOGIN =====
-window.handleAdminLogin = function(){
-  const email = document.getElementById('admin-email').value.trim();
-  const password = document.getElementById('admin-password').value;
-  const errorBox = document.getElementById('admin-login-error');
-  errorBox.textContent = '';
-  if (!email || !password){ errorBox.textContent = 'Email আর Password দিতে হবে।'; return; }
-
-  signInWithEmailAndPassword(auth, email, password)
-    .catch(() => { errorBox.textContent = 'Email বা Password ভুল।'; });
-  // সফল হলে onAuthStateChanged এর মাধ্যমে dashboard এ যাওয়া হবে (নিচে দেখো)
+// ---- LOGIN ----
+window.doLogin=()=>{
+  const email=document.getElementById('a-email').value.trim();
+  const pw=document.getElementById('a-pw').value;
+  const err=document.getElementById('a-err');
+  err.textContent='';
+  if(!email||!pw){err.textContent='Email আর Password দিতে হবে।';return;}
+  signInWithEmailAndPassword(auth,email,pw).catch(()=>{err.textContent='Email বা Password ভুল।';});
 };
 
-// ===== AUTH STATE CHECK (admin কিনা যাচাই) =====
-onAuthStateChanged(auth, user => {
-  if (!user){
-    showScreen('screen-admin-login');
-    return;
-  }
-  get(ref(db, 'admins/' + user.uid)).then(snap => {
-    if (snap.val() === true){
-      showScreen('screen-dashboard');
-      loadStats();
-      loadRules();
-    } else {
-      showScreen('screen-no-permission');
-    }
-  }).catch(() => {
-    showScreen('screen-no-permission');
-  });
+// ---- AUTH STATE ----
+onAuthStateChanged(auth,user=>{
+  if(!user){showAuth();return;}
+  get(ref(db,'admins/'+user.uid)).then(snap=>{
+    if(snap.val()===true){showDash();}
+    else{signOut(auth);showAuth();document.getElementById('a-err').textContent='Admin permission নেই।';}
+  }).catch(()=>{signOut(auth);showAuth();});
 });
 
-// ===== STATS LOAD =====
-window.loadStats = function(){
-  get(ref(db, 'meta/userCount')).then(snap => {
-    document.getElementById('stat-total-users').textContent = snap.val() || 0;
-  });
+function showAuth(){
+  document.getElementById('auth-wrap').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+function showDash(){
+  document.getElementById('auth-wrap').style.display='none';
+  document.getElementById('app').style.display='flex';
+  loadStats();loadUsers();loadRules();
+}
+
+window.doLogout=()=>signOut(auth);
+
+// ---- NAV ----
+window.goSec=name=>{
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+name).classList.add('active');
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('sb-'+name).classList.add('on');
+  if(name==='users'){document.getElementById('user-detail').style.display='none';document.getElementById('user-grid-wrap').style.display='';}
 };
 
-// ===== RULES LOAD =====
-function loadRules(){
-  get(ref(db, 'content/rules/text')).then(snap => {
-    document.getElementById('rules-textarea').value = snap.val() || '';
+// ---- STATS ----
+function loadStats(){
+  get(ref(db,'meta/userCount')).then(snap=>{
+    document.getElementById('stat-total').textContent=snap.val()||0;
   });
 }
 
-// ===== RULES SAVE =====
-window.saveRules = function(){
-  const text = document.getElementById('rules-textarea').value;
-  const errorBox = document.getElementById('rules-error');
-  const successBox = document.getElementById('rules-success');
-  errorBox.textContent = '';
-  successBox.textContent = '';
+// ---- USERS ----
+function loadUsers(){
+  onValue(ref(db,'userIndex'),snap=>{
+    const data=snap.val()||{};
+    const users=Object.entries(data);
+    const wrap=document.getElementById('user-grid-wrap');
+    if(!users.length){wrap.innerHTML='<div style="color:var(--muted);font-size:13px;">এখনো কোনো user নেই।</div>';return;}
+    wrap.innerHTML='<div class="user-grid">'+
+      users.map(([uid,u])=>`
+        <div class="user-card" onclick="openUser('${uid}')">
+          <div class="u-av" style="background:transparent;">${av(u.name,u.pic,54)}</div>
+          <div class="u-nm">${esc(u.name)}</div>
+          <div class="u-dui">DUI: ${esc(u.dui)}</div>
+        </div>`).join('')+
+      '</div>';
+  });
+}
 
-  set(ref(db, 'content/rules'), { text: text, updatedAt: Date.now() })
-    .then(() => { successBox.textContent = 'নিয়ম save হয়ে গেছে।'; })
-    .catch(err => { errorBox.textContent = 'সমস্যা হয়েছে: ' + err.message; });
+window.openUser=uid=>{
+  get(ref(db,'users/'+uid)).then(snap=>{
+    const u=snap.val();if(!u)return;
+    document.getElementById('user-grid-wrap').style.display='none';
+    document.getElementById('user-detail').style.display='block';
+    const avEl=document.getElementById('d-av');
+    const colors=['#5b7fb5','#7b5ba5','#5ba57b','#a55b7b','#a5805b'];
+    const c=colors[(u.name||'?').charCodeAt(0)%5];
+    if(u.pic) avEl.innerHTML=`<img src="${u.pic}" style="width:100%;height:100%;object-fit:cover;">`;
+    else{avEl.style.background=c;avEl.textContent=(u.name||'?').charAt(0).toUpperCase();}
+    document.getElementById('d-nm').textContent=u.name||'--';
+    document.getElementById('d-dui').textContent=u.dui||'--';
+    document.getElementById('d-dob').textContent=u.dob||'--';
+    document.getElementById('d-ph').textContent=u.phone||'--';
+    document.getElementById('d-jd').textContent=fmtDate(u.joinDate);
+  });
+};
+window.closeDetail=()=>{
+  document.getElementById('user-detail').style.display='none';
+  document.getElementById('user-grid-wrap').style.display='';
 };
 
-// ===== ADMIN LOGOUT =====
-window.handleAdminLogout = function(){
-  signOut(auth);
+// ---- RULES ----
+function loadRules(){
+  onValue(ref(db,'content/rules'),snap=>{
+    const data=snap.val()||{};
+    const list=document.getElementById('rules-list');
+    const entries=Object.entries(data).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+    if(!entries.length){list.innerHTML='<div style="color:var(--muted);font-size:13px;">এখনো কোনো নিয়ম নেই।</div>';return;}
+    list.innerHTML=entries.map(([id,r],i)=>`
+      <div class="rule-item">
+        <span class="rule-num">${i+1}.</span>
+        <span class="rule-txt">${esc(r.text)}</span>
+        <button class="rule-del" onclick="delRule('${id}')">মুছে দাও</button>
+      </div>`).join('');
+  });
+}
+window.addRule=()=>{
+  const text=document.getElementById('rule-in').value.trim();
+  const err=document.getElementById('rule-err');
+  const ok=document.getElementById('rule-ok');
+  err.textContent='';ok.textContent='';
+  if(!text){err.textContent='নিয়ম লেখো।';return;}
+  get(ref(db,'content/rules')).then(snap=>{
+    const data=snap.val()||{};
+    const order=Object.keys(data).length+1;
+    return push(ref(db,'content/rules'),{text,order,createdAt:Date.now()});
+  }).then(()=>{ok.textContent='নিয়ম যোগ হয়ে গেছে।';document.getElementById('rule-in').value='';})
+  .catch(e=>{err.textContent='সমস্যা হয়েছে: '+e.message;});
+};
+window.delRule=id=>{
+  if(!confirm('এই নিয়মটা মুছে দেবে?'))return;
+  remove(ref(db,'content/rules/'+id));
 };
 </script>
 </body>
