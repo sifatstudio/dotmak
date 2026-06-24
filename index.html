@@ -242,6 +242,26 @@ function av(name, pic, sz){
 function fmtTime(ts){return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
 function duiMail(d){return 'dui'+d+'@dotmak.local';}
 
+// ---- RANDOM DUI GENERATOR ----
+async function generateRandomDUI(){
+  const countSnap=await get(ref(db,'meta/userCount'));
+  const count=countSnap.val()||0;
+  let digits;
+  if(count<10000) digits=8;
+  else if(count<100000) digits=9;
+  else if(count<1000000) digits=10;
+  else digits=11;
+  const min=Math.pow(10,digits-1);
+  const max=Math.pow(10,digits)-1;
+  let dui,unique=false;
+  while(!unique){
+    dui=Math.floor(Math.random()*(max-min+1))+min;
+    const snap=await get(ref(db,'duiIndex/'+dui));
+    if(!snap.exists()) unique=true;
+  }
+  return dui;
+}
+
 // ---- AUTH UI ----
 window.goAuth = id=>{document.querySelectorAll('#auth-wrap .screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');};
 
@@ -269,11 +289,12 @@ window.doSignup = async()=>{
   if(pw.length<6){err.textContent='Password কমপক্ষে 6 অক্ষরের হতে হবে।';return;}
   const dob=dd.padStart(2,'0')+'/'+mm.padStart(2,'0')+'/'+yy;
   try{
-    const dui=await runTransaction(ref(db,'meta/duiCounter'),c=>c===null?10000001:c+1).then(r=>r.snapshot.val());
+    const dui=await generateRandomDUI();
     const cred=await createUserWithEmailAndPassword(auth,duiMail(dui),pw);
     const ud={name:nm,dob,phone:ph,dui,duiClass:1,joinDate:Date.now(),pic:null,coin:{silver:0,gold:0,s:0}};
     await set(ref(db,'users/'+cred.user.uid),ud);
     await set(ref(db,'userIndex/'+cred.user.uid),{name:nm,pic:null,dui,joinDate:Date.now()});
+    await set(ref(db,'duiIndex/'+dui),cred.user.uid);
     await runTransaction(ref(db,'meta/userCount'),c=>c===null?1:c+1);
     localStorage.setItem('dotmak_dui',String(dui));
     enterApp(cred.user,ud);
